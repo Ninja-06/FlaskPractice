@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<head>
+    <title>
+        Feedback
+    </title>
+</head>
+<body>
+    {%if error %}
+        <p><b>{{error}}</b></p>
+    {%endif%}
+    <form action = "" method = 'POST'>
+        <h1>Give Ratings to our Services</h1>
+        <p><label>Ratings:</label><input type = text name = "Ratings" /></p> 
+        <button type = "submit">submit</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<head>
+    <title>
+        Register
+    </title>
+</head>
+<body>
+
+    {% for msg in form.name.errors %}
+      <h3>{{msg}}</h3>
+    {% endfor %}
+
+    {% for msg in form.email.errors %}
+      <h3>{{msg}}</h3>
+    {% endfor%}
+    <h1>Registration Form </h1>
+    <form action = " http://localhost:5000/register" method = 'POST'>
+        <fieldset>
+           <legend>{{form.csrf_token}}</legend>
+        {{form.name.label}}</br>
+        {{form.name}}</br>
+
+        {{form.email.label}}</br>
+        {{form.email}}</br>
+
+        {{form.gender.label}} {{form.gender}}</br>
+
+        {{form.address.label}}</br>
+        {{form.address}}</br>
+
+        {{form.age.label}}</br>
+        {{form.age}}</br>
+
+        {{form.language.label}}</br>
+        {{form.language}}</br>
+
+        {{form.register}}
+    </fieldset>
+    </form>
+</body>
+</html>

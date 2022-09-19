@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+   <body>
+      <table border = 1>
+        <tr>
+            <th>problem</th>
+            <th>points</th>
+        </tr>
+         {% for problem, points in participationList.items() %}
+            <tr>
+               <th> {{ problem }} </th>
+               <td> {{ points }} </td>
+            </tr>
+         {% endfor %}
+      </table>
+   </body>
+</html>

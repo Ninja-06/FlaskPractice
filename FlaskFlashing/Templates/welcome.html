@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+
+<head>
+    <title>
+        Welcome
+    </title>
+</head>
+
+<body>
+    <h1>
+        welcome to ServTech
+    </h1>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+               <p> {{message}} </p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <a href='http://127.0.0.1:5000/Feedback'> click here to visit feedback link</a>
+
+</body>
+
+</html>
