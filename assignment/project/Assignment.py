@@ -15,7 +15,7 @@ def db_obj():
     db = mysql.connector.connect(
         host='localhost',
         user='root',
-        password='mySql@35',
+        password='password',
         database='user'
     )
     return db
