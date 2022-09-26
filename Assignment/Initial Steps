@@ -1,0 +1,10 @@
+To begin with first set your python environment variable as follows....
+<<<< export PYTHONPATH="$PWD" >>>>
+
+then run to check whether your environment variable is set or not type...
+<<<< echo $PYTHONPATH >>>>
+above command should display working directory path
+
+then after writing testcases you can test your api's using 
+<<<< pytest -v >>>> 
+even there are more commands available if you want descriptive error or success messages
