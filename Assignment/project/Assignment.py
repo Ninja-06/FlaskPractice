@@ -20,6 +20,12 @@ def db_obj():
     )
     return db
 
+
+def teardown(db):
+    db.commit()
+    db.close()
+    
+    
 @myapp.route('/')
 def root():
     return b"no entries so far"
@@ -39,8 +45,8 @@ def register():
             cursor = db.cursor()
             cursor.execute("INSERT INTO user.users(UId, Username, Upassword) VALUES(DEFAULT, %s, sha(%s))", (
                     Username, Upassword))
-            db.commit()
-            db.close()
+            teardown(db)
+            
             return render_template('uploadphoto.html')
 
 
@@ -67,8 +73,8 @@ def uploadphoto():
                     UId = cursor.fetchone()
                     cursor.execute("INSERT INTO user.userphoto (UId, Uphoto) VALUES(%s, LOAD_FILE(%s))", (str(UId[0]), "C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/user/user.jpg"))
                     print(cursor)
-                    db.commit()
-                    db.close()
+                    teardown(db)
+                    
                     return redirect(url_for('addaddress'))
             else:
                 "please upload your image once again"
@@ -96,8 +102,8 @@ def addaddress():
             cursor.execute(
                     "INSERT INTO user.useraddress(country, state, pincode, UId) VALUES(%s, %s, %s, %s)", (country, state, str(pincode), str(UId[0])))
             print('outside')
-            db.commit()
-            db.close()
+            teardown(db)
+            
             session.pop('Username', None)
             session.pop('Upassword', None)
             return render_template('login.html')
@@ -131,8 +137,8 @@ def login():
                 data[1] = base64.b64encode(data[1])
                 data[1] = data[1].decode('UTF-8')
             
-            db.commit()
-            db.close()
+            teardown(db)
+            
             session['Username'] = Username
             session['Upassword'] = Upassword
             return render_template('loginrender.html',data = data, Username = Username)
@@ -160,8 +166,8 @@ def comment():
                 UId = cursor.fetchone()
                 cursor.execute(
                     "INSERT INTO user.usercomment(comment, UId) VALUES(%s, %s)", (comment, str(UId[0])))
-                db.commit()
-                db.close()
+                teardown(db)
+                
                 return "thanks for your comment"
 
             except mysql.connector.errors as err:
@@ -191,7 +197,7 @@ def update():
     print(Username, Upassword)
     cursor.execute("SELECT Users.Username , useraddress.country, useraddress.state, useraddress.pincode FROM (user.Users INNER JOIN User.Useraddress ON user.Users.UId = user.useraddress.UId) WHERE user.users.Username = %s and users.Upassword = sha(%s)", (Username, Upassword))
     userData = cursor.fetchall()
-    db.commit()
+    teardown(db)
 
     if request.method == 'POST' and session != {}:
         Username = request.form['Username']
@@ -204,8 +210,8 @@ def update():
         UId = cursor.fetchone()
         UId = str(UId[0])
         cursor.execute("UPDATE user.Users INNER JOIN User.Useraddress ON user.Users.UId = user.useraddress.UId  SET  users.Username = %s, useraddress.country = %s, useraddress.state = %s, useraddress.pincode = %s WHERE user.users.UId = %s", (Username, country, state, str(pincode), UId))
-        db.commit()
-        db.close()
+        teardown(db)
+        
         return "updation successful"
 
     return "update the fields you want to update <br><form action = 'http://localhost:5000/update'  method = 'POST'>  <p><label>Username</label> <input type = text name = Username  value = "+userData[0][0]+" /></p>   <label>Country</label><input type = text name = country value = "+userData[0][1]+" /></p>  <label>State</label><input type = text name = state value = "+userData[0][2]+" /></p> <label>Pincode</label><input type = text name = pincode value = "+str(userData[0][3])+" /></p><p><button type = submit>update profile</button></p></form>"
@@ -227,8 +233,8 @@ def changePassword():
                 cursor.execute('SELECT user.users.UId FROM user.users WHERE users.Username = %s AND users.Upassword = sha(%s)', (Username, oldPassword))
                 UId = cursor.fetchone()
                 cursor.execute('UPDATE user.users SET users.Upassword = sha(%s) WHERE users.UId = %s', (newPassword, str(UId[0])))
-                db.commit()
-                db.close()
+                teardown(db)
+                
                 session['Upassword'] = newPassword
                 print(session)
                 return "password was changed successfully"
@@ -253,8 +259,8 @@ def delete():
             cursor.execute("SELECT users.UId FROM user.users WHERE user.users.Username = %s and user.users.Upassword = sha(%s)",(Username, Upassword))
             UId = cursor.fetchone()
             cursor.execute("DELETE FROM User.users WHERE user.Users.UId = %s", (str(UId[0]),))
-            db.commit()
-            db.close()
+            teardown(db)
+            
             return "deleted user"
         
         except mysql.connector.errors as err:
@@ -274,8 +280,8 @@ def deleteaddress():
         cursor.execute("SELECT users.UId FROM user.users WHERE user.users.Username = %s and user.users.Upassword = sha(%s)",(Username, Upassword))
         UId = cursor.fetchone()
         cursor.execute("DELETE FROM user.useraddress WHERE useraddress.UId = %s", (str(UId[0]),))
-        db.commit()
-        db.close()
+        teardown(db)
+        
         return"user address was deleted successfully"
     else:
         return "login to delete your address"
@@ -293,8 +299,8 @@ def deletephoto():
         UId = cursor.fetchone()
         print(UId)
         cursor.execute("DELETE FROM user.userphoto WHERE userphoto.UId = %s", (str(UId[0]),))
-        db.commit()
-        db.close()
+        teardown(db)
+        
         return "your photo was deleted successfully"
     else:
         return "login to delete your photo"
@@ -311,8 +317,8 @@ def deletecomments():
         cursor.execute("SELECT users.UId FROM user.users WHERE user.users.Username = %s and user.users.Upassword = sha(%s)",(Username, Upassword))
         UId = cursor.fetchone()
         cursor.execute("DELETE FROM user.usercomment WHERE usercomment.UId = %s", (str(UId[0]),))
-        db.commit()
-        db.close()
+        teardown(db)
+        
         return "all of comments are deleted succesfully"
     else:
         return "login to delete your comments"
@@ -326,8 +332,8 @@ def Listuseraddress():
     cursor = db.cursor()
     cursor.execute("SELECT users.Username, useraddress.country, useraddress.state, useraddress.pincode FROM user.users INNER JOIN user.useraddress ON user.users.UId = user.useraddress.UId")
     data = cursor.fetchall()
-    db.commit()
-    db.close()
+    teardown(db)
+    
     return render_template('Listaddress.html', data = data)
   else:
      return "login to view users addresses "
@@ -341,8 +347,8 @@ def Listusercomments():
         cursor = db.cursor()
         cursor.execute("SELECT users.Username, usercomment.comment FROM user.users INNER JOIN user.usercomment ON users.UId = usercomment.UId")
         data = cursor.fetchall()
-        db.commit()
-        db.close()
+        teardown(db)
+        
         return render_template('view.html', data = data)
     
     else:
