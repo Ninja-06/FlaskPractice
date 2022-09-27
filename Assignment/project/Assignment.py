@@ -197,7 +197,7 @@ def update():
     print(Username, Upassword)
     cursor.execute("SELECT Users.Username , useraddress.country, useraddress.state, useraddress.pincode FROM (user.Users INNER JOIN User.Useraddress ON user.Users.UId = user.useraddress.UId) WHERE user.users.Username = %s and users.Upassword = sha(%s)", (Username, Upassword))
     userData = cursor.fetchall()
-    teardown(db)
+    db.commit()
 
     if request.method == 'POST' and session != {}:
         Username = request.form['Username']
