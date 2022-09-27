@@ -182,3 +182,10 @@ def test_deleteuser(client):
     assert response.status_code == 200
     assert response.content_type == 'text/html; charset=utf-8'
     assert "deleted user" in response.text
+
+def test_changePassword(client):
+    test_login(client)
+    response = client.post('/changePassword/', content_type = 'multipart/form-data', data = {'oldPassword':'vidhi123', 'newPassword':'vidhi456'})
+    assert response.status_code == 200
+    assert response.content_type == 'text/html; charset=utf-8'
+    assert "password was changed successfully" in response.text

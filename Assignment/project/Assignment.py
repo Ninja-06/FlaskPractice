@@ -78,7 +78,6 @@ def uploadphoto():
 
 
 
-
 @myapp.route('/addaddress/', methods = ['POST', 'GET'])
 def addaddress():
     if request.method == 'POST':
@@ -93,6 +92,7 @@ def addaddress():
             cursor.execute(
                 "SELECT user.users.UId FROM user.users WHERE users.Username = %s AND users.Upassword = sha(%s)", (Username, Upassword))
             UId = cursor.fetchone()
+            print(UId)
             cursor.execute(
                     "INSERT INTO user.useraddress(country, state, pincode, UId) VALUES(%s, %s, %s, %s)", (country, state, str(pincode), str(UId[0])))
             print('outside')
@@ -106,9 +106,7 @@ def addaddress():
     
     else:
         return render_template('addaddress.html')
-
-           
-         
+        
 
 
 @myapp.route('/login/', methods=['POST', 'GET'])
@@ -145,6 +143,7 @@ def login():
         return render_template('login.html')
 
 
+
 @myapp.route('/comment/', methods=['POST', 'GET'])
 def comment():
     if request.method == 'POST':
@@ -174,11 +173,13 @@ def comment():
         return render_template('comment.html')
 
 
+
 @myapp.route('/logout/')
 def logout():
     session.pop('Username', None)
     session.pop('Upassword', None)
     return redirect(url_for('login'))
+
 
 
 @myapp.route('/update/', methods=['POST', 'GET'])
@@ -208,6 +209,36 @@ def update():
         return "updation successful"
 
     return "update the fields you want to update <br><form action = 'http://localhost:5000/update'  method = 'POST'>  <p><label>Username</label> <input type = text name = Username  value = "+userData[0][0]+" /></p>   <label>Country</label><input type = text name = country value = "+userData[0][1]+" /></p>  <label>State</label><input type = text name = state value = "+userData[0][2]+" /></p> <label>Pincode</label><input type = text name = pincode value = "+str(userData[0][3])+" /></p><p><button type = submit>update profile</button></p></form>"
+
+
+
+@myapp.route('/changePassword/', methods=['POST', 'GET'])
+def changePassword():
+    if request.method == 'POST':
+        if session != {}:
+            newPassword = request.form['newPassword']
+            oldPassword = request.form['oldPassword']
+            print(newPassword, oldPassword)
+            print(session)
+            if oldPassword == session['Upassword']:
+                Username = session['Username']
+                db = db_obj()
+                cursor = db.cursor(buffered=True)
+                cursor.execute('SELECT user.users.UId FROM user.users WHERE users.Username = %s AND users.Upassword = sha(%s)', (Username, oldPassword))
+                UId = cursor.fetchone()
+                cursor.execute('UPDATE user.users SET users.Upassword = sha(%s) WHERE users.UId = %s', (newPassword, str(UId[0])))
+                db.commit()
+                db.close()
+                session['Upassword'] = newPassword
+                print(session)
+                return "password was changed successfully"
+            else:
+                return "old password you entered is incorrect please try again <a href ='http://localhost:5000/changePassword/'>retry</a>"
+        else:
+            return "login first to change your password"
+    else:
+        return render_template('changePassword.html')
+
 
 
 @myapp.route('/deleteuser/')
@@ -249,6 +280,8 @@ def deleteaddress():
     else:
         return "login to delete your address"
 
+
+
 @myapp.route('/deletephoto/')
 def deletephoto():
     if session != {}:
@@ -266,6 +299,8 @@ def deletephoto():
     else:
         return "login to delete your photo"
 
+
+
 @myapp.route('/deletecomments/')
 def deletecomments():
     if session != {}:
@@ -282,6 +317,8 @@ def deletecomments():
     else:
         return "login to delete your comments"
 
+
+
 @myapp.route('/Listuseraddress/')
 def Listuseraddress():
   if session != {}:
@@ -294,6 +331,7 @@ def Listuseraddress():
     return render_template('Listaddress.html', data = data)
   else:
      return "login to view users addresses "
+
 
 
 @myapp.route('/Listusercomments/')
@@ -309,6 +347,7 @@ def Listusercomments():
     
     else:
         return"login to view comments"
+
 
 
 @myapp.route('/searchusers/', methods = ['POST', 'GET'])
